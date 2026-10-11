@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NetworkPolicy Simulator</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>Kubernetes NetworkPolicy Simulator</h1>
+  <p class="sub">GKE Network Policy for Pod-to-Pod Isolation &middot; 24CC3156-P076</p>
+
+  <section class="panel">
+    <h2>1. Policies</h2>
+    <label><input type="checkbox" id="denyAll"> default-deny-ingress</label>
+    <label><input type="checkbox" id="fb"> allow-frontend-to-backend</label>
+    <label><input type="checkbox" id="bd"> allow-backend-to-database</label>
+    <label><input type="checkbox" id="ob"> allow-other-namespace-to-backend <small>(namespaceSelector)</small></label>
+    <button id="resetBtn" class="ghost">Reset all</button>
+  </section>
+
+  <section class="panel">
+    <h2>2. Pods</h2>
+    <div class="pods">
+      <div class="pod" id="frontend">Frontend<br><small>app=frontend</small></div>
+      <div class="pod" id="backend">Backend<br><small>app=backend</small></div>
+      <div class="pod" id="database">Database<br><small>app=database</small></div>
+      <div class="pod" id="test-client">Test Client<br><small>app=test-client</small></div>
+      <div class="pod other" id="outsider">Outsider<br><small>namespace: other-ns</small></div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>3. Test connection</h2>
+    <select id="src">
+      <option value="frontend">frontend</option>
+      <option value="backend">backend</option>
+      <option value="test-client">test-client</option>
+      <option value="outsider">outsider (other-ns)</option>
+    </select>
+    &rarr;
+    <select id="dst">
+      <option value="backend">backend</option>
+      <option value="database">database</option>
+      <option value="frontend">frontend</option>
+    </select>
+    <button id="testBtn">Test</button>
+    <button id="allBtn">Run all tests</button>
+    <p id="result"></p>
+    <table id="table"></table>
+  </section>
+
+  <section class="panel">
+    <h2>4. Output (kubectl style)</h2>
+    <div class="tabs">
+      <button class="tab active" data-view="tests">Test results</button>
+      <button class="tab" data-view="policies">get networkpolicy</button>
+      <button class="tab" data-view="pods">get pods --show-labels</button>
+      <button class="tab" data-view="describe">describe policy</button>
+    </div>
+    <pre id="terminal" class="terminal">Click "Run all tests" to see output here.</pre>
+  </section>
+
+  <section class="panel">
+    <h2>5. Use Cases</h2>
+    <div class="cards">
+      <div class="card">
+        <h3>Restrict traffic between namespaces</h3>
+        <p>A pod in <code>other-ns</code> should not reach pods in the lab namespace.</p>
+        <button id="uc1">Show proof</button>
+      </div>
+      <div class="card">
+        <h3>Meet a workload isolation requirement</h3>
+        <p>Database accepts traffic only from the backend. Frontend cannot reach it.</p>
+        <button id="uc2">Show proof</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>6. Bottlenecks Students May Encounter</h2>
+    <div class="cards">
+      <div class="card">
+        <h3>Policies silently block traffic with confusing symptoms</h3>
+        <p>A blocked request just hangs. Read the exit code to tell a policy drop from other failures.</p>
+        <button id="bn1">Show exit codes</button>
+      </div>
+      <div class="card">
+        <h3>Default-deny adoption breaks existing services</h3>
+        <p>Applying default-deny cuts every connection until allow rules exist.</p>
+        <button id="bn2">Show the break</button>
+      </div>
+    </div>
+  </section>
+
+  <script src="script.js"></script>
+</body>
+</html>
